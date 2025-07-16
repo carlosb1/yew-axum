@@ -1,0 +1,15 @@
+{
+  "name": "yew-app",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "yew_app_bg.wasm",
+    "yew_app.js",
+    "yew_app.d.ts"
+  ],
+  "main": "yew_app.js",
+  "types": "yew_app.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
