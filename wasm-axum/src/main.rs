@@ -62,7 +62,7 @@ async fn main() {
         .route("/wasm", get(wasm_index))
         .nest_service("/verifier", serve_dir.clone())
         .nest_service("/yew", yew_serve_dir.clone())
-        .route("/websocket", get(websocket_handler))
+        .route("/ws", get(websocket_handler))
         .with_state(app_state);
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:3000")
@@ -83,6 +83,7 @@ async fn websocket_handler(
 // connected client / user, for which we will spawn two independent tasks (for
 // receiving / sending chat messages).
 async fn websocket(stream: WebSocket, state: Arc<AppState>) {
+
     // By splitting, we can send and receive at the same time.
     let (mut sender, mut receiver) = stream.split();
 
@@ -92,6 +93,7 @@ async fn websocket(stream: WebSocket, state: Arc<AppState>) {
     while let Some(Ok(message)) = receiver.next().await {
         if let Message::Text(name) = message {
             // If username that is sent by client is not taken, fill username string.
+            /*
             check_username(&state, &mut username, name.as_str());
 
             // If not empty we want to quit the loop else we want to quit function.
@@ -107,6 +109,8 @@ async fn websocket(stream: WebSocket, state: Arc<AppState>) {
 
                 return;
             }
+             */
+            // we check messages and we can response via send
         }
     }
 
@@ -115,9 +119,9 @@ async fn websocket(stream: WebSocket, state: Arc<AppState>) {
     let mut rx = state.tx.subscribe();
 
     // Now send the "joined" message to all subscribers.
-    let msg = format!("{username} joined.");
-    tracing::debug!("{msg}");
-    let _ = state.tx.send(msg);
+//    let msg = format!("{username} joined.");
+    //tracing::debug!("{msg}");
+    //let _ = state.tx.send(msg);
 
     // Spawn the first task that will receive broadcast messages and send text
     // messages over the websocket to our client.
@@ -158,15 +162,19 @@ async fn websocket(stream: WebSocket, state: Arc<AppState>) {
     state.user_set.lock().unwrap().remove(&username);
 }
 
+/*
 fn check_username(state: &AppState, string: &mut String, name: &str) {
-    let mut user_set = state.user_set.lock().unwrap();
 
-    if !user_set.contains(name) {
-        user_set.insert(name.to_owned());
+let mut user_set = state.user_set.lock().unwrap();
 
-        string.push_str(name);
-    }
+if !user_set.contains(name) {
+    user_set.insert(name.to_owned());
+
+    string.push_str(name);
 }
+
+}
+ */
 
 // Include utf-8 file at **compile** time.
 async fn index() -> Html<&'static str> {
